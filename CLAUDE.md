@@ -8,7 +8,7 @@
 
 ### Owner
 
-**杨浩 (Yang Hao)**, goes by **手哥**. Born 2005, Guangzhou Tianhe, Guangdong, China. Male, ~21 years old, height 167 cm. MBTI: ENTP. Currently in Year 3 of a Xiamen University 2+2 Japan joint program, residing in Fujiedashi, Shizuoka Prefecture, Japan (arrived ~4 months ago). Moving to Osaka, Japan after 2026-03-19.
+**杨灏 (Yang Hao)**，考虑改名为**杨煜垣 (Yang Yuyuan)**，goes by **手哥**. Born 2005, Guangzhou Tianhe, Guangdong, China. Male, ~21 years old, height 167 cm. MBTI: ENTP. Currently in Year 3 of a Xiamen University 2+2 Japan joint program, residing in Fujiedashi, Shizuoka Prefecture, Japan (arrived ~4 months ago). Moving to Osaka, Japan after 2026-03-19.
 
 ### AI Collaboration Matrix ("超级个体AI开发矩阵")
 
@@ -16,8 +16,8 @@
 
 | Slot | AI | Role |
 |------|----|------|
-| 统帅 / 智囊 | Gemini Ultra | Supreme commander, strategic planning, tech-stack selection |
-| 副手 / 先锋 | Claude Code (this instance) | Implementation, code execution, task breakdown |
+| 统帅 / 智囊 | Gemini Ultra | Supreme commander, strategic planning, tech-stack selection (**currently offline / issues**) |
+| 副手 / 先锋 | Claude Code (this instance) | Implementation, code execution, task breakdown — **acting up in Gemini's absence** |
 | 侦察兵 | Grok | Rapid research & real-time data |
 | 先锋营 | Antigravity / Local RTX 5080 | Vibe coding, local model inference |
 
