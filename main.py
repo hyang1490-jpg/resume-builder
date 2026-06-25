@@ -6,8 +6,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
+    allow_origins=["*"],
+    # 本应用不使用 cookie/凭证。通配源 "*" 与 allow_credentials=True 不能共存
+    # （浏览器会拒绝），因此这里显式关闭凭证，使通配源合法生效。
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

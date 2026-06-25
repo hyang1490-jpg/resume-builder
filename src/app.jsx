@@ -41,6 +41,10 @@ const DEFAULT_DATA = {
   skills: "前端 React 全栈开发, Python 底层基建, RTX 5080 算力部署, 社会心理学与非语言博弈, ENTP 创新思维, JLPT N1 & TOEIC 800+ 备考中"
 };
 
+// 后端地址：默认指向本地 FastAPI 服务 (main.py，uvicorn 默认 8000 端口)。
+// 部署到其他环境时，可在 index.html 中设置 window.API_BASE 覆盖。
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE) || "http://localhost:8000";
+
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 function App() {
@@ -54,7 +58,7 @@ function App() {
     setIsAnalyzing(true);
     setAiFeedback("AirSense 本地算力引擎启动中...");
     try {
-      const response = await fetch("https://greedily-opacus-shantelle.ngrok-free.dev/api/analyze", {
+      const response = await fetch(`${API_BASE}/api/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: data.personalInfo.name, skills: data.skills }),
@@ -178,14 +182,10 @@ function App() {
                 <div className="input-group"><label>学校名称</label><input type="text" value={edu.school} onChange={(e) => handleEduChange(edu.id, 'school', e.target.value)} /></div>
                 <div className="input-group"><label>学历/学位</label><input type="text" value={edu.degree} onChange={(e) => handleEduChange(edu.id, 'degree', e.target.value)} /></div>
               </div>
+              <div className="input-group"><label>专业</label><input type="text" value={edu.major} onChange={(e) => handleEduChange(edu.id, 'major', e.target.value)} /></div>
               <div className="input-row">
-                <div className="input-group"><label>专业</label><input type="text" value={edu.major} onChange={(e) => handleEduChange(edu.id, 'major', e.target.value)} /></div>
-                <div className="input-group"><label>在校时间</label><input type="text" value={edu.startDate + ' - ' + edu.endDate} onChange={(e) => {
-                  const parts = e.target.value.split('-');
-                  if (parts.length >= 2) { handleEduChange(edu.id, 'startDate', parts[0].trim()); handleEduChange(edu.id, 'endDate', parts.slice(1).join('-').trim()); }
-                  else { handleEduChange(edu.id, 'startDate', e.target.value); handleEduChange(edu.id, 'endDate', ''); }
-                }} />
-                </div>
+                <div className="input-group"><label>开始时间</label><input type="text" value={edu.startDate} onChange={(e) => handleEduChange(edu.id, 'startDate', e.target.value)} /></div>
+                <div className="input-group"><label>结束时间</label><input type="text" value={edu.endDate} onChange={(e) => handleEduChange(edu.id, 'endDate', e.target.value)} /></div>
               </div>
             </div>
           ))}
