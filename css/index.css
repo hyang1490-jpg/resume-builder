@@ -548,7 +548,7 @@ textarea {
 
   /* 2. 极其暴力地把右侧 A4 纸上的所有文字变成极暗的深黑色！ */
   body *,
-  .paper *,
+  .resume-paper *,
   p,
   span,
   li {
@@ -569,7 +569,7 @@ textarea {
     background: white !important;
   }
 
-  .paper {
+  .resume-paper {
     box-shadow: none !important;
   }
 }

@@ -1,4 +1,4 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 
 const DEFAULT_DATA = {
   personalInfo: {
@@ -49,7 +49,6 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 
 function App() {
   const [data, setData] = useState(DEFAULT_DATA);
-  const printRef = useRef(null);
 
   const [aiFeedback, setAiFeedback] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -76,9 +75,11 @@ function App() {
     window.print();
   };
 
+  // 仅在数据变化时重建图标（增删工作/教育条目会引入新的 <i data-lucide>），
+  // 避免无依赖数组导致每次渲染都全量重扫图标。
   useEffect(() => {
     if (window.lucide) window.lucide.createIcons();
-  });
+  }, [data]);
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -219,7 +220,7 @@ function App() {
           {aiFeedback && (<div style={{ padding: '12px', backgroundColor: 'black', borderRadius: '4px', border: '1px solid #2d3748', color: '#4ade80', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{aiFeedback}</div>)}
         </div>
 
-        <div className="resume-paper" ref={printRef}>
+        <div className="resume-paper">
           <div className="resume-header">
             <div>
               <h1 className="resume-name">{data.personalInfo.name || '姓名'}</h1>
@@ -275,7 +276,7 @@ function App() {
             <div className="resume-section">
               <div className="resume-section-title">专业技能</div>
               <div className="skills-container">
-                {data.skills.split(/[,，]+/).map((skill, i) => skill.trim() && (<span className="skill-tag" key={i}>{skill.trim()}</span>))}
+                {data.skills.split(/[,，]+/).map(s => s.trim()).filter(Boolean).map((skill, i) => (<span className="skill-tag" key={skill + '-' + i}>{skill}</span>))}
               </div>
             </div>
           )}
