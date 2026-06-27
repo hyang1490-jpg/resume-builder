@@ -252,6 +252,23 @@ textarea {
   transform: scale(1.05);
 }
 
+.btn-icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-icon:disabled:hover {
+  background: rgba(28, 28, 28, 0.05);
+  color: var(--text-secondary);
+  transform: none;
+}
+
+/* 条目操作按钮组（上移/下移/删除） */
+.list-item-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
 /* Dynamic list items */
 .list-item {
   position: relative;
@@ -299,9 +316,13 @@ textarea {
 }
 
 .preview-actions {
-  position: absolute;
-  top: 2.5rem;
-  right: 2.5rem;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
   z-index: 20;
 }
 
@@ -471,37 +492,77 @@ textarea {
   }
 }
 
-/* Print Styles */
+/* ==========================================
+   🖨️ 打印 / PDF 导出（唯一权威规则，勿在别处再加 @media print）
+   ========================================== */
+@page {
+  size: A4;
+  margin: 12mm 14mm;
+}
+
 @media print {
+  /* 保留颜色/背景，避免浏览器打印时把配色洗白 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body {
-    background: none;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background: #ffffff !important;
+    overflow: visible !important;
   }
 
-  .app-container {
-    height: auto;
-    overflow: visible;
-  }
-
+  /* 隐藏所有编辑界面，只留简历纸（含操作工具条 .preview-actions、AI 框 .ai-box） */
   .form-section,
-  .preview-actions {
+  .preview-actions,
+  .ai-box {
     display: none !important;
   }
 
+  .app-container,
   .preview-section {
-    width: 100%;
-    padding: 0;
-    overflow: visible;
-    background: none;
+    display: block !important;
+    height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: none !important;
   }
 
+  /* 简历纸铺满可打印区域，去掉屏幕态的阴影/缩放/外边距 */
   .resume-paper {
-    box-shadow: none;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* 正文统一深色，保证打印对比度 */
+  .resume-paper,
+  .resume-paper * {
+    color: #111827 !important;
+  }
+
+  /* 主色强调：与屏幕一致，仅职位与小标题保持朱砂红 */
+  .resume-paper .resume-title,
+  .resume-paper .resume-item-subtitle {
+    color: #8b261f !important;
+  }
+
+  /* 分页控制：小节与条目不被从中间裂开；段标题不与其内容分离 */
+  .resume-section,
+  .resume-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .resume-section-title {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 }
 
@@ -535,41 +596,46 @@ textarea {
   }
 }
 
-/* ==========================================
-   🖨️ PDF 导出专属强制显影补丁 (禁止任何字体发白)
-   ========================================== */
-@media print {
-
-  /* 1. 强制浏览器保留所有高级阴影和色块设置 */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* 2. 极其暴力地把右侧 A4 纸上的所有文字变成极暗的深黑色！ */
-  body *,
-  .resume-paper *,
-  p,
-  span,
-  li {
-    color: #111827 !important;
-  }
-
-  /* 3. 把标题颜色加深，增加对比度 */
-  h1,
-  h2,
-  h3,
-  h4,
-  strong {
-    color: #000000 !important;
-  }
-
-  /* 4. 抹除网页上的滚动条和多余阴影，让 PDF 更干净 */
+/* 移动端：左右双栏改为上下堆叠，恢复整页滚动（替代缩放挤压） */
+@media screen and (max-width: 768px) {
   body {
-    background: white !important;
+    overflow: auto;
   }
 
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .form-section,
+  .preview-section {
+    width: 100%;
+    height: auto;
+  }
+
+  .form-section {
+    padding: 1.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .preview-section {
+    padding: 1.5rem 0.75rem;
+  }
+
+  /* 小屏不再缩放，让简历纸自适应容器宽度并自然换行多页 */
   .resume-paper {
-    box-shadow: none !important;
+    transform: none;
+    margin-top: 0;
+    width: 100%;
+    min-height: auto;
+    padding: 28px 24px;
+  }
+
+  .preview-actions {
+    justify-content: stretch;
   }
 }
+

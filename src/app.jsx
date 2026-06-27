@@ -110,6 +110,10 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: data.personalInfo.name, skills: data.skills }),
       });
+      if (!response.ok) {
+        setAiFeedback(`🚨 后端返回错误（HTTP ${response.status}）。请稍后重试或检查服务端日志。`);
+        return;
+      }
       const result = await response.json();
       setAiFeedback(result.message);
     } catch (error) {
@@ -143,37 +147,26 @@ function App() {
   const addWorkExp = () => setData(prev => ({ ...prev, workExperience: [...prev.workExperience, { id: generateId(), company: "", position: "", startDate: "", endDate: "", description: "" }] }));
   const removeWorkExp = (id) => setData(prev => ({ ...prev, workExperience: prev.workExperience.filter(exp => exp.id !== id) }));
 
+  // 交换数组中相邻两项的位置（dir = -1 上移 / +1 下移），越界则原样返回。
+  const moveItem = (arr, id, dir) => {
+    const i = arr.findIndex(x => x.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return arr;
+    const next = arr.slice();
+    [next[i], next[j]] = [next[j], next[i]];
+    return next;
+  };
+  const moveWorkExp = (id, dir) => setData(prev => ({ ...prev, workExperience: moveItem(prev.workExperience, id, dir) }));
+
   const handleEduChange = (id, field, value) => {
     setData(prev => ({ ...prev, education: prev.education.map(edu => edu.id === id ? { ...edu, [field]: value } : edu) }));
   };
   const addEdu = () => setData(prev => ({ ...prev, education: [...prev.education, { id: generateId(), school: "", degree: "", major: "", startDate: "", endDate: "" }] }));
   const removeEdu = (id) => setData(prev => ({ ...prev, education: prev.education.filter(edu => edu.id !== id) }));
+  const moveEdu = (id, dir) => setData(prev => ({ ...prev, education: moveItem(prev.education, id, dir) }));
 
   return (
     <div className="app-container">
-      {/* 极客物理外挂：干掉网址日期，压缩内边距，完美单页收官！ */}
-      <style>{`
-        @page { size: A4; margin: 0; }
-        @media print {
-          body, html { background-color: #ffffff !important; margin: 0; padding: 0; }
-          .form-section, .preview-actions, .ai-box { display: none !important; }
-          .app-container, .preview-section { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-          /* 上下内边距从 10mm 压缩到了 8mm，给技能标签腾地方 */
-          .resume-paper { 
-            width: 100% !important; max-width: 100% !important; box-shadow: none !important; margin: 0 !important; padding: 8mm 15mm !important; 
-          }
-          .resume-paper, .resume-paper * { 
-            color: #000000 !important; 
-            font-weight: 500 !important;
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important; 
-          }
-          .resume-paper .resume-title, .resume-paper .resume-item-subtitle {
-            color: #8b261f !important; font-weight: bold !important;
-          }
-        }
-      `}</style>
-
       <div className="form-section">
         <div className="header">
           <h1>闪耀简历 SparkResume</h1>
@@ -203,7 +196,11 @@ function App() {
             <div key={exp.id} className="list-item">
               <div className="list-item-header">
                 <span className="item-index">经历 {index + 1}</span>
-                <button type="button" className="btn-icon" aria-label={`删除第 ${index + 1} 段工作经历`} onClick={() => removeWorkExp(exp.id)}><i data-lucide="trash-2" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                <span className="list-item-actions">
+                  <button type="button" className="btn-icon" aria-label={`上移第 ${index + 1} 段工作经历`} disabled={index === 0} onClick={() => moveWorkExp(exp.id, -1)}><i data-lucide="arrow-up" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                  <button type="button" className="btn-icon" aria-label={`下移第 ${index + 1} 段工作经历`} disabled={index === data.workExperience.length - 1} onClick={() => moveWorkExp(exp.id, 1)}><i data-lucide="arrow-down" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                  <button type="button" className="btn-icon" aria-label={`删除第 ${index + 1} 段工作经历`} onClick={() => removeWorkExp(exp.id)}><i data-lucide="trash-2" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                </span>
               </div>
               <div className="input-row">
                 <div className="input-group"><label htmlFor={`work-company-${exp.id}`}>公司名称</label><input id={`work-company-${exp.id}`} type="text" placeholder="某某科技有限公司" value={exp.company} onChange={(e) => handleWorkExpChange(exp.id, 'company', e.target.value)} /></div>
@@ -225,7 +222,11 @@ function App() {
             <div key={edu.id} className="list-item">
               <div className="list-item-header">
                 <span className="item-index">教育 {index + 1}</span>
-                <button type="button" className="btn-icon" aria-label={`删除第 ${index + 1} 段教育背景`} onClick={() => removeEdu(edu.id)}><i data-lucide="trash-2" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                <span className="list-item-actions">
+                  <button type="button" className="btn-icon" aria-label={`上移第 ${index + 1} 段教育背景`} disabled={index === 0} onClick={() => moveEdu(edu.id, -1)}><i data-lucide="arrow-up" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                  <button type="button" className="btn-icon" aria-label={`下移第 ${index + 1} 段教育背景`} disabled={index === data.education.length - 1} onClick={() => moveEdu(edu.id, 1)}><i data-lucide="arrow-down" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                  <button type="button" className="btn-icon" aria-label={`删除第 ${index + 1} 段教育背景`} onClick={() => removeEdu(edu.id)}><i data-lucide="trash-2" aria-hidden="true" style={{ width: 16, height: 16 }}></i></button>
+                </span>
               </div>
               <div className="input-row">
                 <div className="input-group"><label htmlFor={`edu-school-${edu.id}`}>学校名称</label><input id={`edu-school-${edu.id}`} type="text" placeholder="某某大学" value={edu.school} onChange={(e) => handleEduChange(edu.id, 'school', e.target.value)} /></div>
